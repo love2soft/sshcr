@@ -1,7 +1,10 @@
 from django.db import models
+import datetime
+import hashlib
 import json
 
-# Create your models here.
+def generate_token():
+    return hashlib.sha256(str(datetime.datetime.now()).encode()).hexdigest()
 
 string = lambda x: models.CharField(max_length=x)
 number = lambda : models.IntegerField()
@@ -13,6 +16,7 @@ m2m = lambda x: models.ManyToManyField(x)
 class User(models.Model):
     username = string(30)
     nombre = string(36)
+    password = string(64)
     foto = photo()
     descripcion = string(255)
     token = string(64)
