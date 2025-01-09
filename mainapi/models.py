@@ -12,6 +12,7 @@ class User(models.Model):
     nombre = string(36)
     foto = photo()
     descripcion = string(255)
+    token = string(64)
 
     def __str__(self):
         return str(self.nombre)
