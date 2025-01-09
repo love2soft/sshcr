@@ -7,6 +7,7 @@ number = lambda : models.IntegerField()
 remote = lambda x: models.ForeignKey(x, on_delete=models.CASCADE)
 photo = lambda : models.ImageField(upload_to="./images")
 timestamp = lambda : models.DateTimeField(auto_now=True)
+m2m = lambda x: models.ManyToManyField(x)
 
 class User(models.Model):
     username = string(30)
@@ -22,6 +23,7 @@ class User(models.Model):
 class Room(models.Model):
     nombre = string(30)
     foto = photo()
+    users = m2m(User)
 
     def __str__(self):
         return str(self.nombre)
