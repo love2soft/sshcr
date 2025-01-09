@@ -20,5 +20,7 @@ from mainapi import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.asd)
+    path('', views.hello),
+    path('send', views.send_message),
+    path('list', views.read_message)
 ]

@@ -33,8 +33,10 @@ def send_message(request):
         return JsonResponse({"status":"err","body":"Token invalido"})
     try:
         room = models.Room.objects.get(nombre=room) 
+        if not remitente in room.users.all():
+            return JsonResponse({"status":"err","body":"No tienes permisos en la sala"})
     except models.Room.DoesNotExist:
-        return JsonResponse({"status":"err","body":"Token invalido"})
+        return JsonResponse({"status":"err","body":"La sala no existe"})
     if msg_type & 1 == 1: # text
         models.Message(remitente=remitente, text=msg_body, room=room, message_type=msg_type ).save()
     if msg_type & 2 == 2: # image
@@ -46,10 +48,14 @@ def send_message(request):
     return JsonResponse({"status":"ok"})
 
 
+@csrf_exempt
 def read_message(request):
-    if request.method != "GET":
-        return JsonResponse({"status":"err","body":"Method have to be GET"})
-    msg = []
+    if request.method != "POST":
+        return JsonResponse({"status":"err","body":"Method have to be POST"})
+    try:
+        msg = json.loads(request.body.decode())
+    except json.JSONDecodeError:
+        return JsonResponse({"status":"err","body":"Error leyendo JSON"})
     filters = {}
     try:
         token = msg["token"]
@@ -60,15 +66,21 @@ def read_message(request):
         room = msg["room"]
         try:
             room = models.Room.objects.get(nombre=room) 
+            if not remitente in room.users.all():
+                return JsonResponse({"status":"err","body":"No tienes permisos en la sala"})
         except models.Room.DoesNotExist:
-            return JsonResponse({"status":"err","body":"Token invalido"})
+            return JsonResponse({"status":"err","body":"La sala no existe"})
         date = msg["date"]
         msg_id = msg["msg_id"]
         if msg_id != "":
             filters["id__gt"] = msg_id
         if date != "":
             filters["date__gt"] = date
-
+        elements = models.Message.objects.filter(**filters)
+        new_elements = []
+        for element in elements:
+            new_elements.append(element.jsonify())
+        return JsonResponse({"status":"ok", "data": new_elements})
     except:
         return JsonResponse({"status":"err","body":"Falta algun campo obligatorio"})
     return JsonResponse({"status":"ok"})
