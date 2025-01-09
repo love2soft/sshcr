@@ -6,6 +6,7 @@ string = lambda x: models.CharField(max_length=x)
 number = lambda : models.IntegerField()
 remote = lambda x: models.ForeignKey(x, on_delete=models.CASCADE)
 photo = lambda : models.ImageField(upload_to="./images")
+timestamp = lambda : models.DateTimeField(auto_now=True)
 
 class User(models.Model):
     username = string(30)
@@ -31,6 +32,7 @@ class Message(models.Model):
     message_type = number()
     room = remote(Room)
     text = string(500)
+    date = timestamp()
 
     def __str__(self):
         return str(self.remitente)+": " + str(self.text)
